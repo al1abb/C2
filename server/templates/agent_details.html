@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ agent.hostname }} - Agent Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function toggleSection(sectionId, arrowId) {
+            const section = document.getElementById(sectionId);
+            const arrow = document.getElementById(arrowId);
+            section.classList.toggle('hidden');
+            arrow.style.transform = section.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-gray-100">
+
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-gray-800 p-4 shadow-md">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-white">C2 Dashboard</h1>
+                <nav>
+                    <a href="/" class="text-lg text-white hover:text-gray-400">Home</a>
+                    <a href="#" class="ml-4 text-lg text-white hover:text-gray-400">Settings</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto p-6">
+            <div class="bg-gray-700 p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold text-white mb-4">{{ agent.hostname }} Details</h2>
+                <p class="text-sm text-gray-400">IP: {{ agent.ip }}</p>
+                <p class="text-sm text-gray-400">Last Seen: {{ agent.last_seen }}</p>
+                <p class="text-sm text-gray-400">OS: {{ agent.os }}</p>
+
+                <!-- System Info -->
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold text-white">System Info</h3>
+                    <p class="text-sm text-gray-400">Uptime: {{ agent.system_info.uptime }}</p>
+                    <p class="text-sm text-gray-400">CPU Model: {{ agent.system_info.cpu.model }}</p>
+                    <p class="text-sm text-gray-400">Memory Total: {{ agent.system_info.memory.total }}</p>
+                    <p class="text-sm text-gray-400">Disk Total: {{ agent.system_info.disk.total }}</p>
+                </div>
+
+                <!-- Apps Section -->
+                <div class="mt-4">
+                    <button id="toggleAppProcesses" class="text-lg text-white hover:text-gray-400 w-full text-left flex justify-between items-center" onclick="toggleSection('appProcesses', 'appArrow')">
+                        Apps ({{ agent.system_info.processes.apps | length }})
+                        <span id="appArrow" class="transform rotate-0">&#9660;</span>
+                    </button>
+                    <ul id="appProcesses" class="list-disc pl-5 mt-2 space-y-2 hidden">
+                        {% for process in agent.system_info.processes.apps %}
+                            <li class="text-sm text-gray-400">{{ process.name }} (PID: {{ process.pid }}, CPU: {{ process.cpu_percent }}%)</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Background Processes Section -->
+                <div class="mt-4">
+                    <button id="toggleBgProcesses" class="text-lg text-white hover:text-gray-400 w-full text-left flex justify-between items-center" onclick="toggleSection('bgProcesses', 'bgArrow')">
+                        Background Processes ({{ agent.system_info.processes.background_processes | length }})
+                        <span id="bgArrow" class="transform rotate-0">&#9660;</span>
+                    </button>
+                    <ul id="bgProcesses" class="list-disc pl-5 mt-2 space-y-2 hidden">
+                        {% for process in agent.system_info.processes.background_processes %}
+                            <li class="text-sm text-gray-400">{{ process.name }} (PID: {{ process.pid }}, CPU: {{ process.cpu_percent }}%)</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Tasks Section -->
+                <div class="mt-6">
+                    <h3>Tasks</h3>
+                    {% if agent['tasks'] %}
+                        <ul>
+                        {% for task in agent['tasks'] %}
+                            <li>
+                                <strong>Task ID:</strong> {{ task['task_id'] }} <br>
+                                <strong>Status:</strong> {{ task['status'] }} <br>
+                                <strong>Output:</strong><br>
+                                <pre>{{ task['output'] if task['status'] == 'completed' else 'Not executed yet' }}</pre>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No tasks available</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <form id="sendCommandForm">
+                        <label for="agent_id">Agent ID:</label>
+                        <input type="text" id="agent_id" name="agent_id" class="text-black"><br><br>
+                    
+                        <label for="command">Command:</label>
+                        <input type="text" id="command" name="command" class="text-black"><br><br>
+                    
+                        <button type="submit">Send Command</button>
+                    </form>
+                    
+                    <script>
+                    document.getElementById('sendCommandForm').addEventListener('submit', function(event) {
+                        event.preventDefault();
+                    
+                        const agentId = document.getElementById('agent_id').value;
+                        const command = document.getElementById('command').value;
+                    
+                        fetch('/send_command', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                agent_id: agentId,
+                                command: command
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            alert(`Command sent! Task ID: ${data.task_id}`);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    });
+                    </script>
+                    
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 p-4 text-center text-white">
+            <p>&copy; 2024 C2 Command Center | All rights reserved.</p>
+        </footer>
+    </div>
+
+</body>
+</html>
