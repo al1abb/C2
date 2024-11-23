@@ -1,8 +1,8 @@
 from flask import Flask, request, render_template, jsonify, session, redirect, url_for
+import os
 import json
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-import os
 
 # Load environment variables
 load_dotenv()
@@ -29,7 +29,7 @@ def load_agents():
         with open(AGENTS_FILE, "r") as f:
             agents = json.load(f)
 
-        # Remove agents who haven't been seen in the last 2 minutes
+        # Remove agents who haven't been seen
         current_time = datetime.utcnow()
         active_agents = {
             agent_id: agent
@@ -47,6 +47,7 @@ def save_agents(agents):
     with open(AGENTS_FILE, "w") as f:
         json.dump(agents, f, indent=4)
 
+# Login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Handle login requests."""
@@ -63,12 +64,14 @@ def login():
 
     return render_template("login.html")
 
+# Logout
 @app.route('/logout')
 def logout():
     """Handle logout requests."""
     session.pop('logged_in', None)
     return redirect(url_for('login'))
 
+# Main page. (Redirects to login if unauthenticated)
 @app.route('/')
 def dashboard():
     """Render the dashboard to display agent information."""
@@ -78,6 +81,7 @@ def dashboard():
     agents = load_agents()
     return render_template("dashboard.html", agents=agents)
 
+# Agent Details Page
 @app.route('/agent/<agent_id>')
 def agent_details(agent_id):
     """Render the details page for a specific agent."""
@@ -90,6 +94,7 @@ def agent_details(agent_id):
         return jsonify({"error": "Agent not found"}), 404
     return render_template("agent_details.html", agent=agent)
 
+# Agent Registration
 @app.route('/register', methods=['POST'])
 def register_agent():
     """Handle agent registration."""

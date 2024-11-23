@@ -42,6 +42,7 @@ def format_uptime(seconds):
     return f"{int(days)} days, {int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds"
 
 def get_windows_version():
+    """Get the Windows version."""
     version = platform.version()  # Kernel version
     release = platform.release()  # General release (e.g., 10)
     build = os.sys.getwindowsversion().build  # Build number
