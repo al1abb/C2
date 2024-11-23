@@ -24,6 +24,7 @@
                 <nav>
                     <a href="/" class="text-lg text-white hover:text-gray-400">Home</a>
                     <a href="#" class="ml-4 text-lg text-white hover:text-gray-400">Settings</a>
+                    <a href="{{ url_for('logout') }}" class="ml-4 text-lg text-white hover:text-gray-400">Logout</a>
                 </nav>
             </div>
         </header>
@@ -35,6 +36,7 @@
                 <p class="text-sm text-gray-400">IP: {{ agent.ip }}</p>
                 <p class="text-sm text-gray-400">Last Seen: {{ agent.last_seen }}</p>
                 <p class="text-sm text-gray-400">OS: {{ agent.os }}</p>
+                <p class="text-sm text-gray-400">Model: {{ agent.system_info.model }}</p>
 
                 <!-- System Info -->
                 <div class="mt-6">
@@ -88,46 +90,6 @@
                     {% else %}
                         <p>No tasks available</p>
                     {% endif %}
-                </div>
-
-                <div>
-                    <form id="sendCommandForm">
-                        <label for="agent_id">Agent ID:</label>
-                        <input type="text" id="agent_id" name="agent_id" class="text-black"><br><br>
-                    
-                        <label for="command">Command:</label>
-                        <input type="text" id="command" name="command" class="text-black"><br><br>
-                    
-                        <button type="submit">Send Command</button>
-                    </form>
-                    
-                    <script>
-                    document.getElementById('sendCommandForm').addEventListener('submit', function(event) {
-                        event.preventDefault();
-                    
-                        const agentId = document.getElementById('agent_id').value;
-                        const command = document.getElementById('command').value;
-                    
-                        fetch('/send_command', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                agent_id: agentId,
-                                command: command
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            alert(`Command sent! Task ID: ${data.task_id}`);
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                    });
-                    </script>
-                    
                 </div>
             </div>
         </main>
