@@ -1,4 +1,6 @@
 venv/
 server/agents.json
+server/commands.json
+server/commands_output.json
 
 .env
