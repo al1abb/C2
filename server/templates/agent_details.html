@@ -12,6 +12,40 @@
             section.classList.toggle('hidden');
             arrow.style.transform = section.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
         }
+
+        // Function to handle form submission
+        function submitCommandForm(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const commandInput = document.getElementById('commandInput');
+            const agentIdInput = document.getElementById('agentId');
+            const command = commandInput.value.trim();
+            const agentId = agentIdInput.value;
+
+            if (command) {
+                fetch('/send_command', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ agent_id: agentId, command: command })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        // Handle success (show confirmation, clear form, etc.)
+                        alert('Command sent successfully!');
+                        commandInput.value = ''; // Clear the input field
+                    } else {
+                        // Handle failure
+                        alert('Failed to send command. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+            }
+        }
     </script>
 </head>
 <body class="bg-gray-900 text-gray-100">
@@ -73,22 +107,38 @@
                     </ul>
                 </div>
 
-                <!-- Tasks Section -->
+                <!-- Command Input Form -->
                 <div class="mt-6">
-                    <h3>Tasks</h3>
-                    {% if agent['tasks'] %}
-                        <ul>
-                        {% for task in agent['tasks'] %}
-                            <li>
-                                <strong>Task ID:</strong> {{ task['task_id'] }} <br>
-                                <strong>Status:</strong> {{ task['status'] }} <br>
-                                <strong>Output:</strong><br>
-                                <pre>{{ task['output'] if task['status'] == 'completed' else 'Not executed yet' }}</pre>
-                            </li>
-                        {% endfor %}
-                        </ul>
+                    <h3 class="text-xl font-semibold text-white">Send Command</h3>
+                    <form id="commandForm" onsubmit="submitCommandForm(event)">
+                        <div class="mt-4 flex items-center">
+                            <label for="commandInput" class="text-sm text-gray-400 mr-4">Command:</label>
+                            <input type="hidden" id="agentId" value="{{ agent_id }}">
+                            <input type="text" id="commandInput" name="command" class="p-2 rounded-lg bg-gray-800 text-white text-sm flex-1 border border-gray-600" placeholder="Enter command" required />
+                            <button type="submit" class="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">Send</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Command Outputs -->
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold text-white">Command Outputs</h3>
+                    {% if agent_commands %}
+                        <div class="mt-4 space-y-4">
+                            {% for command, output in agent_commands.items() %}
+                                <div class="flex items-start border-t border-b border-gray-600 py-4">
+                                    <div class="w-10 text-center bg-gray-800 text-gray-200 rounded-lg mr-4">
+                                        {{ loop.index }}
+                                    </div>
+                                    <div class="flex-1">
+                                        <pre class="text-sm text-white mb-2 font-semibold">{{ command }}</pre>
+                                        <pre class="bg-gray-800 text-gray-300 p-4 rounded-lg text-sm whitespace-pre-wrap break-words">{{ output }}</pre>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
                     {% else %}
-                        <p>No tasks available</p>
+                        <p class="text-gray-400">No command outputs available for this agent.</p>
                     {% endif %}
                 </div>
             </div>
