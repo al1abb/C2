@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, jsonify, session, redirect, url_for
 import os
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 import subprocess
 
@@ -22,6 +22,9 @@ AGENTS_FILE = "server/agents.json"
 COMMANDS_FILE = "server/commands.json"
 COMMANDS_OUTPUT_FILE="server/commands_output.json"
 
+# Define the GMT+4 timezone as a fixed offset
+GMT_PLUS_4 = timezone(timedelta(hours=4))
+
 # Time threshold in minutes
 TIMEOUT_THRESHOLD = timedelta(seconds=40)
 
@@ -32,13 +35,27 @@ def load_agents():
         with open(AGENTS_FILE, "r") as f:
             agents = json.load(f)
 
-        # Remove agents who haven't been seen
-        current_time = datetime.utcnow()
-        active_agents = {
-            agent_id: agent
-            for agent_id, agent in agents.items()
-            if current_time - datetime.fromisoformat(agent["last_seen"]) < TIMEOUT_THRESHOLD
-        }
+        # Get the current time in the local timezone (GMT+4)
+        current_time = datetime.now(GMT_PLUS_4)
+
+        active_agents = {}
+
+        for agent_id, agent in agents.items():
+            try:
+                # Convert 'last_seen' to a timezone-aware datetime object
+                last_seen_time = datetime.fromisoformat(agent["last_seen"])
+
+                # If last_seen is naive, localize it to GMT+4
+                if last_seen_time.tzinfo is None:
+                    last_seen_time = last_seen_time.replace(tzinfo=GMT_PLUS_4)
+
+                # Now we can safely compare the two
+                if current_time - last_seen_time < TIMEOUT_THRESHOLD:
+                    active_agents[agent_id] = agent
+
+            except (KeyError, ValueError):
+                # Skip agents with invalid or missing last_seen timestamp
+                continue
 
         return active_agents
 
@@ -101,6 +118,8 @@ def agent_details(agent_id):
     commands_data = load_command_output()  # Function that loads the command output from JSON
     agent_commands = commands_data.get(agent_id, {})
 
+    # Reverse the order of the commands for display (latest command first)
+    agent_commands = dict(reversed(list(agent_commands.items())))
 
     return render_template("agent_details.html", agent=agent, agent_commands=agent_commands, agent_id=agent_id)
 
@@ -118,9 +137,11 @@ def register_agent():
     # Extract system info from data
     system_info = data.get("system_info", {})
     
-    # Beautify the timestamp
-    last_seen_utc = datetime.utcnow()
-    last_seen_readable = last_seen_utc.strftime("%Y-%m-%d %H:%M:%S")  # Human-readable format
+    # Get the current time in the local timezone (GMT+4)
+    last_seen_local = datetime.now(GMT_PLUS_4)
+    
+    # Format the local time in a human-readable format
+    last_seen_readable = last_seen_local.strftime("%Y-%m-%d %H:%M:%S")
 
     # Update or add agent
     agents[agent_id] = {
@@ -218,7 +239,7 @@ def execute_command():
 
 @app.route('/store_command_output', methods=['POST'])
 def store_command_output():
-    """Store the command output in a JSON file."""
+    """Store the command output in a JSON file with unique command IDs."""
     try:
         # Get the JSON data from the request
         data = request.get_json()
@@ -238,11 +259,22 @@ def store_command_output():
         except FileNotFoundError:
             commands_data = {}
 
-        # Update the data with the new command output
+        # If agent_id does not exist in the data, create a new entry for it
         if agent_id not in commands_data:
             commands_data[agent_id] = {}
 
-        commands_data[agent_id][command] = output
+        # Get the highest existing command ID for this agent, or start with 0 if none exists
+        command_ids = list(commands_data[agent_id].keys())
+        if command_ids:
+            new_id = str(max(map(int, command_ids)) + 1)
+        else:
+            new_id = "1"
+
+        # Save the new command output under the new command ID
+        commands_data[agent_id][new_id] = {
+            "command": command,
+            "output": output
+        }
 
         # Write the updated data back to the file
         with open(COMMANDS_OUTPUT_FILE, "w") as f:
