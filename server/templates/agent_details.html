@@ -120,27 +120,47 @@
                     </form>
                 </div>
 
-                <!-- Command Outputs -->
-                <div class="mt-6">
-                    <h3 class="text-xl font-semibold text-white">Command Outputs</h3>
-                    {% if agent_commands %}
-                        <div class="mt-4 space-y-4">
-                            {% for command, output in agent_commands.items() %}
-                                <div class="flex items-start border-t border-b border-gray-600 py-4">
-                                    <div class="w-10 text-center bg-gray-800 text-gray-200 rounded-lg mr-4">
-                                        {{ loop.index }}
-                                    </div>
-                                    <div class="flex-1">
-                                        <pre class="text-sm text-white mb-2 font-semibold">{{ command }}</pre>
-                                        <pre class="bg-gray-800 text-gray-300 p-4 rounded-lg text-sm whitespace-pre-wrap break-words">{{ output }}</pre>
-                                    </div>
-                                </div>
-                            {% endfor %}
+<!-- Command Outputs -->
+<div class="mt-6">
+    <h3 class="text-xl font-semibold text-white">Command Outputs</h3>
+    {% if agent_commands %}
+        <div class="mt-4 space-y-4">
+            {% for command_id, command_data in agent_commands.items() %}
+                <div class="border-t border-b border-gray-600">
+                    <!-- Accordion Header -->
+                    <input
+                        type="checkbox"
+                        id="accordion-{{ command_id }}"
+                        class="hidden peer"
+                        {% if loop.first %}checked{% endif %}
+                    />
+                    <label for="accordion-{{ command_id }}" class="flex items-center justify-between cursor-pointer py-4 px-2 hover:bg-gray-700">
+                        <div class="flex items-center">
+                            <!-- Use command_id for the unique ID -->
+                            <div class="w-10 text-center bg-gray-800 text-gray-200 rounded-lg mr-4">
+                                {{ command_id }}
+                            </div>
+                            <pre class="text-sm text-white font-semibold">{{ command_data.command }}</pre>
                         </div>
-                    {% else %}
-                        <p class="text-gray-400">No command outputs available for this agent.</p>
-                    {% endif %}
+                        <div class="text-gray-300">
+                            <!-- Icons -->
+                            <span class="peer-checked:hidden">+</span>
+                            <span class="hidden peer-checked:inline">-</span>
+                        </div>
+                    </label>
+                    <!-- Accordion Content -->
+                    <div class="hidden peer-checked:block">
+                        <pre class="bg-gray-800 text-gray-300 p-4 rounded-lg text-sm whitespace-pre-wrap break-words">
+                            {{ command_data.output }}
+                        </pre>
+                    </div>
                 </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-400">No command outputs available for this agent.</p>
+    {% endif %}
+</div>
             </div>
         </main>
 
