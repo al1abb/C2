@@ -216,19 +216,20 @@ def store_command_output(agent_id, command, output):
 
         # Check if agent already has command entries
         if agent_id not in commands_data:
-            commands_data[agent_id] = []
+            commands_data[agent_id] = {}
 
-        # Add the new command output with timestamp
-        new_command = {
+        # Get the highest existing command ID for this agent, or start with 0 if none exists
+        command_ids = list(commands_data[agent_id].keys())
+        if command_ids:
+            new_id = str(max(map(int, command_ids)) + 1)
+        else:
+            new_id = "1"
+
+        # Save the new command output under the new command ID
+        commands_data[agent_id][new_id] = {
             "command": command,
             "output": output
         }
-
-        # Append the new command to the list for the agent
-        commands_data[agent_id].append(new_command)
-
-        # Sort the commands by timestamp, newest first
-        commands_data[agent_id] = sorted(commands_data[agent_id], key=lambda x: x['timestamp'], reverse=True)
 
         # Write the updated data back to the file
         with open(COMMANDS_FILE, "w") as f:
