@@ -114,53 +114,65 @@
                         <div class="mt-4 flex items-center">
                             <label for="commandInput" class="text-sm text-gray-400 mr-4">Command:</label>
                             <input type="hidden" id="agentId" value="{{ agent_id }}">
-                            <input type="text" id="commandInput" name="command" class="p-2 rounded-lg bg-gray-800 text-white text-sm flex-1 border border-gray-600" placeholder="Enter command" required />
-                            <button type="submit" class="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">Send</button>
+                            <input 
+                                type="text" 
+                                id="commandInput" 
+                                name="command" 
+                                class="p-3 rounded-lg bg-gray-800 text-white text-base flex-1 border border-gray-600 w-2/3" 
+                                placeholder="Enter command" 
+                                required 
+                            />
+                            <button 
+                                type="submit" 
+                                class="ml-4 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-base font-semibold"
+                            >
+                                Send
+                            </button>
                         </div>
                     </form>
                 </div>
 
-<!-- Command Outputs -->
-<div class="mt-6">
-    <h3 class="text-xl font-semibold text-white">Command Outputs</h3>
-    {% if agent_commands %}
-        <div class="mt-4 space-y-4">
-            {% for command_id, command_data in agent_commands.items() %}
-                <div class="border-t border-b border-gray-600">
-                    <!-- Accordion Header -->
-                    <input
-                        type="checkbox"
-                        id="accordion-{{ command_id }}"
-                        class="hidden peer"
-                        {% if loop.first %}checked{% endif %}
-                    />
-                    <label for="accordion-{{ command_id }}" class="flex items-center justify-between cursor-pointer py-4 px-2 hover:bg-gray-700">
-                        <div class="flex items-center">
-                            <!-- Use command_id for the unique ID -->
-                            <div class="w-10 text-center bg-gray-800 text-gray-200 rounded-lg mr-4">
-                                {{ command_id }}
-                            </div>
-                            <pre class="text-sm text-white font-semibold">{{ command_data.command }}</pre>
+                <!-- Command Outputs -->
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold text-white">Command Outputs</h3>
+                    {% if agent_commands %}
+                        <div class="mt-4 space-y-4">
+                            {% for command_id, command_data in agent_commands.items() %}
+                                <div class="border-t border-b border-gray-600">
+                                    <!-- Accordion Header -->
+                                    <input
+                                        type="checkbox"
+                                        id="accordion-{{ command_id }}"
+                                        class="hidden peer"
+                                        {% if loop.first %}checked{% endif %}
+                                    />
+                                    <label for="accordion-{{ command_id }}" class="flex items-center justify-between cursor-pointer py-4 px-2 hover:bg-gray-700">
+                                        <div class="flex items-center">
+                                            <!-- Use command_id for the unique ID -->
+                                            <div class="w-10 text-center bg-gray-800 text-gray-200 rounded-lg mr-4">
+                                                {{ command_id }}
+                                            </div>
+                                            <pre class="text-sm text-white font-semibold">{{ command_data.command }}</pre>
+                                        </div>
+                                        <div class="text-gray-300">
+                                            <!-- Icons -->
+                                            <span class="peer-checked:hidden">+</span>
+                                            <span class="hidden peer-checked:inline">-</span>
+                                        </div>
+                                    </label>
+                                    <!-- Accordion Content -->
+                                    <div class="hidden peer-checked:block">
+                                        <pre class="bg-gray-800 p-4 rounded-lg text-sm whitespace-pre-wrap break-words text-left">
+                                            <p>{{ command_data.output }}</p>
+                                        </pre>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
-                        <div class="text-gray-300">
-                            <!-- Icons -->
-                            <span class="peer-checked:hidden">+</span>
-                            <span class="hidden peer-checked:inline">-</span>
-                        </div>
-                    </label>
-                    <!-- Accordion Content -->
-                    <div class="hidden peer-checked:block">
-                        <pre class="bg-gray-800 text-gray-300 p-4 rounded-lg text-sm whitespace-pre-wrap break-words">
-                            {{ command_data.output }}
-                        </pre>
-                    </div>
+                    {% else %}
+                        <p class="text-gray-400">No command outputs available for this agent.</p>
+                    {% endif %}
                 </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p class="text-gray-400">No command outputs available for this agent.</p>
-    {% endif %}
-</div>
             </div>
         </main>
 
