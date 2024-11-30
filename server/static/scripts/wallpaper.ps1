@@ -1,8 +1,11 @@
 # Cat image
 # https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Cat_with_cute_eyes.jpeg/1300px-Cat_with_cute_eyes.jpeg
 
+# https://random.dog/bb2dfc51-b7a3-4722-9ecd-b7d014a3a4dc.jpg
+
 # Define the URL and the local file path
 $imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Cat_with_cute_eyes.jpeg/2500px-Cat_with_cute_eyes.jpeg?20180901100342"
+
 $tempFilePath = "$env:TEMP\wallpaper.jpg"
 
 # Download the image
