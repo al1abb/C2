@@ -115,7 +115,7 @@ def agent_details(agent_id):
         return jsonify({"error": "Agent not found"}), 404
 
     # Load the command output data for the specific agent
-    commands_data = load_command_output()  # Function that loads the command output from JSON
+    commands_data = load_command_output()
     agent_commands = commands_data.get(agent_id, {})
 
     # Reverse the order of the commands for display (latest command first)
@@ -147,9 +147,9 @@ def register_agent():
     agents[agent_id] = {
         "ip": data.get("ip", "Unknown"),
         "hostname": data.get("hostname", "Unknown"),
-        "last_seen": last_seen_readable,  # Use the beautified format
+        "last_seen": last_seen_readable,
         "os": data.get("os", "Unknown"),
-        "system_info": system_info,  # Add system_info here
+        "system_info": system_info,
     }
 
     save_agents(agents)
@@ -176,7 +176,7 @@ def load_command_output():
         with open(COMMANDS_OUTPUT_FILE, "r") as f:
             return json.load(f)
     except FileNotFoundError:
-        return {}  # Return an empty dict if the file does not exist
+        return {}
 
 # Send command to agent
 @app.route('/send_command', methods=['POST'])

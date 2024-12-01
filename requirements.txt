@@ -3,3 +3,4 @@ flask
 psutil
 dotenv
 requests
+python-dotenv
