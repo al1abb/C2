@@ -3,6 +3,7 @@ dist/
 venv/
 
 server/static/bin
+server/static/images/hasharat.jpeg
 
 server/agents.json
 server/commands.json
