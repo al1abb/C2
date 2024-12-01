@@ -1,4 +1,9 @@
+build/
+dist/
 venv/
+
+server/static/bin
+
 server/agents.json
 server/commands.json
 server/commands_output.json
