@@ -1,8 +1,8 @@
 # Specify the URL of the GIF file
-$gifUrl = "http://192.168.30.20:5000/static/uploads/monkey.gif"
+$gifUrl = "http://192.168.31.132:5000/static/images/monkey.gif"
 
 # Specify the local directory to save the file
-$localDirectory = "C:\Users\Student\Desktop"
+$localDirectory = "C:\Users\Fidan Abbasova\Downloads"
 
 # Specify the local file name
 $localFileName = "monkey.gif"
