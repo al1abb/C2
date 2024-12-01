@@ -29,9 +29,9 @@
                 {% for agent_id, agent in agents.items() %}
                     <div class="bg-gray-700 p-4 rounded-lg shadow-lg hover:bg-gray-600 transition duration-300">
                         <h2 class="text-xl font-semibold text-white">{{ agent.hostname }}</h2>
-                        <p class="text-sm text-gray-400">IP: {{ agent.ip }}</p>
-                        <p class="text-sm text-gray-400">Last Seen: {{ agent.last_seen }}</p>
-                        <p class="text-sm text-gray-400">OS: {{ agent.os }}</p>
+                        <p class="text-sm text-gray-300">IP: {{ agent.ip }}</p>
+                        <p class="text-sm text-gray-300">Last Seen: {{ agent.last_seen }}</p>
+                        <p class="text-sm text-gray-300">OS: {{ agent.os }}</p>
                         <a href="{{ url_for('agent_details', agent_id=agent_id) }}">
                             <button class="mt-4 w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-center">
                                 Interact

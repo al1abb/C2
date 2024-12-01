@@ -67,18 +67,18 @@
         <main class="flex-grow container mx-auto p-6">
             <div class="bg-gray-700 p-6 rounded-lg shadow-lg">
                 <h2 class="text-2xl font-semibold text-white mb-4">{{ agent.hostname }} Details</h2>
-                <p class="text-sm text-gray-400">IP: {{ agent.ip }}</p>
-                <p class="text-sm text-gray-400">Last Seen: {{ agent.last_seen }}</p>
-                <p class="text-sm text-gray-400">OS: {{ agent.os }}</p>
-                <p class="text-sm text-gray-400">Model: {{ agent.system_info.model }}</p>
+                <p class="text-sm text-gray-300">IP: {{ agent.ip }}</p>
+                <p class="text-sm text-gray-300">Last Seen: {{ agent.last_seen }}</p>
+                <p class="text-sm text-gray-300">OS: {{ agent.os }}</p>
+                <p class="text-sm text-gray-300">Model: {{ agent.system_info.model }}</p>
 
                 <!-- System Info -->
                 <div class="mt-6">
                     <h3 class="text-xl font-semibold text-white">System Info</h3>
-                    <p class="text-sm text-gray-400">Uptime: {{ agent.system_info.uptime }}</p>
-                    <p class="text-sm text-gray-400">CPU Model: {{ agent.system_info.cpu.model }}</p>
-                    <p class="text-sm text-gray-400">Memory Total: {{ agent.system_info.memory.total }}</p>
-                    <p class="text-sm text-gray-400">Disk Total: {{ agent.system_info.disk.total }}</p>
+                    <p class="text-sm text-gray-300">Uptime: {{ agent.system_info.uptime }}</p>
+                    <p class="text-sm text-gray-300">CPU Model: {{ agent.system_info.cpu.model }}</p>
+                    <p class="text-sm text-gray-300">Memory Total: {{ agent.system_info.memory.total }}</p>
+                    <p class="text-sm text-gray-300">Disk Total: {{ agent.system_info.disk.total }}</p>
                 </div>
 
                 <!-- Apps Section -->
@@ -89,7 +89,7 @@
                     </button>
                     <ul id="appProcesses" class="list-disc pl-5 mt-2 space-y-2 hidden">
                         {% for process in agent.system_info.processes.apps %}
-                            <li class="text-sm text-gray-400">{{ process.name }} (PID: {{ process.pid }}, CPU: {{ process.cpu_percent }}%)</li>
+                            <li class="text-sm text-gray-300">{{ process.name }} (PID: {{ process.pid }}, CPU: {{ process.cpu_percent }}%)</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -102,7 +102,7 @@
                     </button>
                     <ul id="bgProcesses" class="list-disc pl-5 mt-2 space-y-2 hidden">
                         {% for process in agent.system_info.processes.background_processes %}
-                            <li class="text-sm text-gray-400">{{ process.name }} (PID: {{ process.pid }}, CPU: {{ process.cpu_percent }}%)</li>
+                            <li class="text-sm text-gray-300">{{ process.name }} (PID: {{ process.pid }}, CPU: {{ process.cpu_percent }}%)</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -112,7 +112,7 @@
                     <h3 class="text-xl font-semibold text-white">Send Command</h3>
                     <form id="commandForm" onsubmit="submitCommandForm(event)">
                         <div class="mt-4 flex items-center">
-                            <label for="commandInput" class="text-sm text-gray-400 mr-4">Command:</label>
+                            <label for="commandInput" class="text-sm text-gray-300 mr-4">Command:</label>
                             <input type="hidden" id="agentId" value="{{ agent_id }}">
                             <input 
                                 type="text" 
