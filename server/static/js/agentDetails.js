@@ -5,7 +5,10 @@ const getScript = (name, param1 = "",param2="") => {
     if (name === 'talk.ps1' && param1) {
         return `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/${name}").Content) ) "${param1}"`
     }
-    if (name === 'toast.ps1')
+    else if(name === 'wallpaper.ps1' && param1) {
+        return `$wallpaperUrl = "${param1}"; $script = [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/${name}").Content); Invoke-Expression $script; set-wallpaper -imageUrl $wallpaperUrl`
+    }
+    else if (name === 'toast.ps1')
     {
         return `$headline = "${param1}"; $body = "${param2}"; $script = [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/${name}").Content); Invoke-Expression $script; toast -headlineText $headline -bodyText $body`
     }
@@ -19,7 +22,7 @@ const scripts = [
     },
     {
         name: 'Wallpaper Script',
-        command: getScript('wallpaper.ps1')
+        command: () => openWallpaperModal()
     },
     {
         name: 'Talk',
@@ -125,7 +128,11 @@ function createPrebuiltScriptButtons() {
         if (script.name === 'Toast') {
             // Special case for Toast button: Open modal
             button.onclick = () => openToastModal();
-        } else {
+        }
+        else if(script.name === 'Wallpaper Script') {
+            button.onclick = () => openWallpaperModal();
+        }
+        else {
             button.onclick = () => populateCommand(script.command);
         }
 
@@ -153,6 +160,28 @@ function openToastModal() {
 
     // Close the modal when clicking the close button
     document.getElementById("closeToastModal").onclick = () => {
+        modal.classList.add("hidden");
+    };
+}
+
+function openWallpaperModal() {
+    const modal = document.getElementById("wallpaperModal");
+    modal.classList.remove("hidden");
+
+    // Handle the submit button click event to gather input values and create the script command
+    document.getElementById("submitWallpaper").onclick = () => {
+        const wallpaperUrl = document.getElementById("wallpaperUrl").value || "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Cat_with_cute_eyes.jpeg/2500px-Cat_with_cute_eyes.jpeg";
+
+        // Close the modal and pass the values to the command
+        const command = getScript('wallpaper.ps1', wallpaperUrl);
+        populateCommand(command);
+
+        // Close modal
+        modal.classList.add("hidden");
+    };
+
+    // Close the modal when clicking the close button
+    document.getElementById("closeWallpaperModal").onclick = () => {
         modal.classList.add("hidden");
     };
 }
