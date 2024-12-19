@@ -1,5 +1,6 @@
 const serverURL = "http://192.168.80.24:5000"
 
+// Function to generate the PowerShell script command based on the script name and parameters
 const getScript = (name, param1 = "",param2="") => {
     // For the "Talk" script, append the dynamic text into the PowerShell script as a string argument
     if (name === 'talk.ps1' && param1) {
