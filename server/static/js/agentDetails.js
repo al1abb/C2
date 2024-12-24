@@ -68,6 +68,7 @@ const scripts = [
     },
 ];
 
+// Function to toggle the visibility of a section and rotate the arrow icon
 function toggleSection(sectionId, arrowId) {
     const section = document.getElementById(sectionId);
     const arrow = document.getElementById(arrowId);
