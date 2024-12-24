@@ -147,6 +147,7 @@ def register_agent():
     agents[agent_id] = {
         "ip": data.get("ip", "Unknown"),
         "hostname": data.get("hostname", "Unknown"),
+        "whoami": data.get("whoami", "Unknown"),
         "last_seen": last_seen_readable,
         "os": data.get("os", "Unknown"),
         "system_info": system_info,

