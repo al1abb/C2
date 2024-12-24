@@ -1,4 +1,4 @@
-const serverURL = "http://192.168.31.132"
+const serverURL = "http://192.168.80.24:5000"
 
 const getScript = (name, textToSay = "") => {
     // For the "Talk" script, append the dynamic text into the PowerShell script as a string argument
@@ -28,6 +28,10 @@ const scripts = [
     {
         name: 'Turn off screen',
         command: "(Add-Type '[DllImport(\"user32.dll\")]public static extern int SendMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::SendMessage(-1,0x0112,0xF170,2)"
+    },
+    {
+        name: 'List Wi-Fi Networks',
+        command: getScript('wifi.ps1')
     },
     {
         name: 'List Processes',
