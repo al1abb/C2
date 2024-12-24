@@ -1,0 +1,45 @@
+<!-- Details Tab Content -->
+<div id="detailsTab" class="tab-content hidden">
+    {% include 'agent_details_tabs/main_details.html' %}
+    <!-- Apps Section -->
+    <div class="mt-6">
+        <button
+            id="toggleAppProcesses"
+            class="text-lg text-white hover:text-gray-400 w-full text-left flex justify-between items-center"
+            onclick="toggleSection('appProcesses', 'appArrow')"
+        >
+            Apps ({{ agent.system_info.processes.apps | length }})
+            <span id="appArrow" class="transform rotate-0">&#9660;</span>
+        </button>
+        <ul id="appProcesses" class="list-disc pl-5 mt-2 space-y-2 hidden">
+            {% for process in agent.system_info.processes.apps %}
+            <li class="text-sm text-gray-300">
+                {{ process.name }} (PID: {{ process.pid }}, CPU: {{
+                process.cpu_percent }}%)
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Background Processes Section -->
+    <div class="mt-4">
+        <button
+            id="toggleBgProcesses"
+            class="text-lg text-white hover:text-gray-400 w-full text-left flex justify-between items-center"
+            onclick="toggleSection('bgProcesses', 'bgArrow')"
+        >
+            Background Processes ({{
+            agent.system_info.processes.background_processes | length }})
+            <span id="bgArrow" class="transform rotate-0">&#9660;</span>
+        </button>
+        <ul id="bgProcesses" class="list-disc pl-5 mt-2 space-y-2 hidden">
+            {% for process in agent.system_info.processes.background_processes
+            %}
+            <li class="text-sm text-gray-300">
+                {{ process.name }} (PID: {{ process.pid }}, CPU: {{
+                process.cpu_percent }}%)
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
