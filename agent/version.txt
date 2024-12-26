@@ -1,0 +1,24 @@
+# UTF-8 encoded text file
+VSVersionInfo(
+    FixedFileInfo(
+        filevers=(1, 0, 0, 0),  # tuple format for filevers
+        prodvers=(1, 0, 0, 0),  # tuple format for prodvers
+        fileflags=0,  # fileflags
+        fileOS=4  # fileOS
+    ),
+    StringFileInfo(
+        [
+            (0x409,  # English (US)
+             {
+                "FileDescription": "Endpoint Agent",
+                "FileVersion": "1.0.0.0",
+                "ProductVersion": "1.0.0.0",
+                "CompanyName": "Microsoft Corporation",  # Corrected typo
+                "ProductName": "Endpoint Agent"
+             })
+        ]
+    ),
+    VarFileInfo(
+        [(0x409, 1200)]  # Translation entry (English, Unicode)
+    )
+)
