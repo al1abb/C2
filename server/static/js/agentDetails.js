@@ -10,8 +10,8 @@ const getScript = (name, textToSay = "") => {
 
 const scripts = [
     {
-        name: 'Test Script',
-        command: getScript('test.ps1')
+        name: 'Fake Update',
+        command: getScript('fake_update.ps1')
     },
     {
         name: 'Wallpaper Script',
@@ -43,12 +43,12 @@ const scripts = [
     },
     {
         name: 'Public IP',
-        command: "(Invoke-WebRequest -uri 'https://api.ipify.org?format=json').Content"
+        command: "(Invoke-WebRequest -uri 'https://api.ipify.org').Content"
     },
     {
         name: 'Test Internet',
         command: getScript('test_internet.ps1')
-    }
+    },
 ];
 
 function toggleSection(sectionId, arrowId) {
