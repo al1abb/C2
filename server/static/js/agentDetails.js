@@ -167,6 +167,7 @@ function openToastModal() {
     };
 }
 
+// Open the Wallpaper modal
 function openWallpaperModal() {
     const modal = document.getElementById("wallpaperModal");
     modal.classList.remove("hidden");
