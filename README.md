@@ -12,6 +12,11 @@ pyinstaller --onefile --noconsole --icon=cog.ico agent.py
 pyinstaller --onefile --noconsole --icon=cog.ico --name=ExeName agent.py
 ```
 
+### Install EXE (with a name + a custom version file)
+```bash
+pyinstaller --onefile --noconsole --icon=cog.ico --name=ExeName --version-file=version.txt agent.py
+```
+
 ## Custom powershell script usage:
 
 To run custom powershell scripts on target machine (Agent), you can execute this command:
