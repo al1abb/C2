@@ -60,9 +60,11 @@
                         >
                             {{ command_id }}
                         </div>
-                        <pre class="text-sm text-white font-semibold">
-{{ command_data.command }}</pre
+                        <pre
+                            class="text-sm text-white font-semibold break-words whitespace-normal"
                         >
+                        {{ command_data.command }}
+                        </pre>
                     </div>
                     <div class="text-gray-300">
                         <span class="peer-checked:hidden">+</span>
@@ -72,10 +74,10 @@
                 <div class="hidden peer-checked:block">
                     <pre
                         class="p-4 rounded-lg text-sm whitespace-pre-wrap break-words text-left"
-                        style="background-color: #0C0C0C;"
-                        >
-                                                <p>{{ command_data.output }}</p>
-                                            </pre>
+                        style="background-color: #0c0c0c"
+                    >
+                    <p>{{ command_data.output }}</p>
+                </pre>
                 </div>
             </div>
             {% endfor %}
@@ -87,3 +89,6 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Modals -->
+{% include 'modals/toast.html' %}
