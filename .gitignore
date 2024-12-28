@@ -2,6 +2,9 @@ build/
 dist/
 venv/
 
+agent/*.spec
+
+server/static/*.exe
 server/static/bin
 server/static/images/hasharat.jpeg
 
