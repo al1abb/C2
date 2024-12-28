@@ -1,9 +1,13 @@
 const serverURL = "http://192.168.80.24:5000"
 
-const getScript = (name, textToSay = "") => {
+const getScript = (name, param1 = "",param2="") => {
     // For the "Talk" script, append the dynamic text into the PowerShell script as a string argument
-    if (name === 'talk.ps1' && textToSay) {
-        return `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/${name}").Content) ) "${textToSay}"`
+    if (name === 'talk.ps1' && param1) {
+        return `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/${name}").Content) ) "${param1}"`
+    }
+    if (name === 'toast.ps1')
+    {
+        return `$headline = "${param1}"; $body = "${param2}"; $script = [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/${name}").Content); Invoke-Expression $script; toast -headlineText $headline -bodyText $body`
     }
     return `Invoke-Expression ( [System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri "${serverURL}/static/scripts/${name}").Content) )`
 }
@@ -48,6 +52,14 @@ const scripts = [
     {
         name: 'Test Internet',
         command: getScript('test_internet.ps1')
+    },
+    {
+        name: 'Check Firewall',
+        command: getScript('check_firewall.ps1')
+    },
+    {
+        name: 'Toast',
+        command: () => openToastModal
     },
 ];
 
@@ -109,9 +121,40 @@ function createPrebuiltScriptButtons() {
         button.textContent = script.name;
         button.className =
             "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold";
-        button.onclick = () => populateCommand(script.command);
+
+        if (script.name === 'Toast') {
+            // Special case for Toast button: Open modal
+            button.onclick = () => openToastModal();
+        } else {
+            button.onclick = () => populateCommand(script.command);
+        }
+
         prebuiltScriptsContainer.appendChild(button);
     });
+}
+
+// Open the Toast modal
+function openToastModal() {
+    const modal = document.getElementById("toastModal");
+    modal.classList.remove("hidden");
+
+    // Handle the submit button click event to gather input values and create the script command
+    document.getElementById("submitToast").onclick = () => {
+        const toastHeadline = document.getElementById("toastHeading").value || "Toast Notification";
+        const toastBody = document.getElementById("toastBody").value || "This is a toast notification";
+
+        // Close the modal and pass the values to the command
+        const command = getScript('toast.ps1', toastHeadline, toastBody);
+        populateCommand(command);
+
+        // Close modal
+        modal.classList.add("hidden");
+    };
+
+    // Close the modal when clicking the close button
+    document.getElementById("closeToastModal").onclick = () => {
+        modal.classList.add("hidden");
+    };
 }
 
 // Initialize prebuilt script buttons on page load
