@@ -1,6 +1,5 @@
 pywin32
 flask
 psutil
-dotenv
 requests
 python-dotenv
